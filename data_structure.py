@@ -27,8 +27,8 @@ class DataSet:
 
     def sort(self):
         random.shuffle(self.data)
-        self.data = sorted(self.data, key=lambda x: x._max_sent_len)
-        self.data = sorted(self.data, key=lambda x: x._doc_len)
+        self.data = sorted(self.data, key=lambda x: x._max_sent_len())
+        self.data = sorted(self.data, key=lambda x: x._doc_len())
 
     def get_by_idxs(self, idxs):
         return [self.data[idx] for idx in idxs]
@@ -56,11 +56,11 @@ class Instance:
         self.goldLabel = -1
         self.idx = -1
 
-    def _doc_len(self, idx):
+    def _doc_len(self, idx=-1):
         k = len(self.token_idxs)
         return k
 
-    def _max_sent_len(self, idxs):
+    def _max_sent_len(self, idxs=-1):
         k = max([len(sent) for sent in self.token_idxs])
         return k
 

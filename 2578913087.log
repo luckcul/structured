@@ -1,0 +1,1 @@
+2017-11-24 10:52:51,553 - {'dim_sem': 75, 'log_period': 5000, 'batch_size': 16, 'd_embed': 200, 'sent_attention': 'max', 'norm': 0.0001, 'dim_str': 50, 'rnn_cell': 'lstm', 'dim_hidden': 125, 'large_data': False, 'dim_output': 5, 'n_embed': 49030, 'epochs': 30, 'keep_prob': 0.7, 'doc_attention': 'max', 'lr': 0.05, 'gpu': -1, 'opt': 'Adagrad', 'data_file': 'data/yelp-2013-all.pkl'}

@@ -1,13 +1,13 @@
 from data_structure import DataSet
 import tensorflow as tf
 import numpy as np
-import cPickle
+import pickle as pk
 import logging
 from models import  StructureModel
 import tqdm
 
 def load_data(config):
-    train, dev, test, embeddings, vocab = cPickle.load(open(config.data_file))
+    train, dev, test, embeddings, vocab = pk.load(open(config.data_file, 'rb'))
     trainset, devset, testset = DataSet(train), DataSet(dev), DataSet(test)
     vocab = dict([(v.index,k) for k,v in vocab.items()])
     trainset.sort()
