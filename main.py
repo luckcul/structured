@@ -31,6 +31,22 @@ def evaluate(sess, model, test_batches):
     acc_test = 1.0 * corr_count / all_count
     return  acc_test
 
+def inference(sess, model, infe_batches):
+    print('start inference ...')
+    with open('inference_answers.txt', 'w') as fw:
+        for ct, batch in infe_batches:
+            print(ct)
+            feed_dict = model.get_feed_dict(batch)
+            feed_dict[model.t_variables['keep_prob']] = 1
+            predictions = sess.run(model.inference, feed_dict=feed_dict)
+            for row in predictions:
+                row = [str(xi) for xi in row]
+                fw.write(' '.join(row) + '\n')
+            # fw.write(str(predictions) + '\n')
+    print('finish inference')
+
+
+
 def run(config):
     import random
 
@@ -65,20 +81,22 @@ def run(config):
         sess.run(gvi)
         sess.run(model.embeddings.assign(embedding_matrix.astype(np.float32)))
         loss = 0
-
+        # inference(sess, model, dev_batches)
         for ct, batch in tqdm.tqdm(train_batches, total=num_steps):
             feed_dict = model.get_feed_dict(batch)
             outputs,_,_loss = sess.run([model.final_output, model.opt, model.loss], feed_dict=feed_dict)
             loss+=_loss
             if(ct%config.log_period==0):
                 acc_test = evaluate(sess, model, test_batches)
-                acc_dev = evaluate(sess, model, dev_batches)
+                # acc_dev = evaluate(sess, model, dev_batches)
                 print('Step: {} Loss: {}\n'.format(ct, loss))
                 print('Test ACC: {}\n'.format(acc_test))
-                print('Dev  ACC: {}\n'.format(acc_dev))
+                # print('Dev  ACC: {}\n'.format(acc_dev))
                 logger.debug('Step: {} Loss: {}\n'.format(ct, loss))
                 logger.debug('Test ACC: {}\n'.format(acc_test))
-                logger.debug('Dev  ACC: {}\n'.format(acc_dev))
+                # logger.debug('Dev  ACC: {}\n'.format(acc_dev))
                 logger.handlers[0].flush()
                 loss = 0
+        inference(sess, model, dev_batches)
+        
 

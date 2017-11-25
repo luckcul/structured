@@ -34,12 +34,12 @@ class StructureModel():
         max_sent_l = max([max([len(sent) for sent in doc.token_idxs]) for doc in batch])
         token_idxs_matrix = np.zeros([batch_size, max_doc_l, max_sent_l], np.int32)
         sent_l_matrix = np.zeros([batch_size, max_doc_l], np.int32)
-        gold_matrix = np.zeros([batch_size], np.int32)
+        gold_matrix = np.zeros([batch_size], np.int32) # 
         mask_tokens_matrix = np.ones([batch_size, max_doc_l, max_sent_l], np.float32)
         mask_sents_matrix = np.ones([batch_size, max_doc_l], np.float32)
         for i, instance in enumerate(batch):
             n_sents = len(instance.token_idxs)
-            gold_matrix[i] = instance.goldLabel
+            gold_matrix[i] = instance.goldLabel # 
             for j, sent in enumerate(instance.token_idxs):
                 token_idxs_matrix[i, j, :len(sent)] = np.asarray(sent)
                 mask_tokens_matrix[i, j, len(sent):] = 0
@@ -184,6 +184,7 @@ class StructureModel():
 
         final_output = MLP(sents_output, 'output', self.t_variables['keep_prob'])
         self.final_output = tf.matmul(final_output, w_softmax) + b_softmax
+        self.inference = tf.nn.softmax(logits=self.final_output)
 
     def get_loss(self):
         if (self.config.opt == 'Adam'):

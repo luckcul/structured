@@ -68,20 +68,25 @@ class Corpus:
     def __init__(self):
         self.doclst = {}
 
-    def load(self, in_path, name):
+    def load(self, in_path, name, is_infer=False):
         self.doclst[name] = []
         for line in open(in_path):
-            items = line.split('<split1>')
+            items = line.split('\t')
             doc = RawData()
-            doc.goldRating = int(items[0])
+            if is_infer:
+                doc.goldRating = -1
+            else:
+                doc.goldRating = int(items[2]) - 1
             doc.reviewText = items[1]
             self.doclst[name].append(doc)
     def preprocess(self):
         random.shuffle(self.doclst['train'])
         for dataset in self.doclst:
             for doc in self.doclst[dataset]:
-                doc.sent_lst = doc.reviewText.split('<split2>')
-                doc.sent_lst = [re.sub(r"[^A-Za-z0-9(),!?\'\`_]", " ",sent) for sent in doc.sent_lst]
+                # doc.sent_lst = doc.reviewText.split('<split2>')
+                doc.sent_lst = re.split('[。！？]', doc.reviewText)
+                # doc.sent_lst = [re.sub(r"[^A-Za-z0-9(),!?\'\`_]", " ",sent) for sent in doc.sent_lst]
+                doc.sent_lst = [re.sub('[^\u4e00-\u9fa50-9]+', ' ', sent) for sent in doc.sent_lst]
                 doc.sent_token_lst = [sent.split() for sent in doc.sent_lst]
                 doc.sent_token_lst = [sent_tokens for sent_tokens in doc.sent_token_lst if(len(sent_tokens)!=0)]
             self.doclst[dataset] = [doc for doc in self.doclst[dataset] if len(doc.sent_token_lst)!=0]
@@ -121,7 +126,7 @@ class Corpus:
         instances, instances_dev, instances_test = [],[],[]
         instances, embeddings, vocab = self.prepare_for_training(options)
         if ('dev' in self.doclst):
-            instances_dev = self.prepare_for_test(options, 'dev')
+            instances_dev = self.prepare_for_test(options, 'dev', True)
         instances_test = self.prepare_for_test( options, 'test')
         return instances, instances_dev, instances_test, embeddings, vocab
 
@@ -169,7 +174,7 @@ class Corpus:
             instancelst.append(instance)
         print('n_filtered in train: {}'.format(n_filtered))
         return instancelst, embeddings, self.vocab
-    def prepare_for_test(self, options, name):
+    def prepare_for_test(self, options, name, is_infe=False):
         instancelst = []
         n_filtered = 0
         for i_doc, doc in enumerate(self.doclst[name]):
@@ -177,10 +182,10 @@ class Corpus:
             instance.idx = i_doc
             n_sents = len(doc.sent_token_lst)
             max_n_tokens = max([len(sent) for sent in doc.sent_token_lst])
-            if(n_sents>options['max_sents']):
+            if((not is_infe) and n_sents>options['max_sents']):
                 n_filtered += 1
                 continue
-            if(max_n_tokens>options['max_tokens']):
+            if((not is_infe) and max_n_tokens>options['max_tokens']):
                 n_filtered += 1
                 continue
             sent_token_idx = []
