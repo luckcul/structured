@@ -155,9 +155,11 @@ class Corpus:
             n_sents = len(doc.sent_token_lst)
             max_n_tokens = max([len(sent) for sent in doc.sent_token_lst])
             if(n_sents>options['max_sents']):
+                # print('in train too long :', i_doc, n_sents)
                 n_filtered += 1
                 continue
             if(max_n_tokens>options['max_tokens']):
+                # print('in train too long token :', i_doc, max_n_tokens)
                 n_filtered += 1
                 continue
             sent_token_idx = []

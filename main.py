@@ -35,7 +35,7 @@ def inference(sess, model, infe_batches):
     print('start inference ...')
     with open('inference_answers.txt', 'w') as fw:
         for ct, batch in infe_batches:
-            print(ct)
+            # print(ct)
             feed_dict = model.get_feed_dict(batch)
             feed_dict[model.t_variables['keep_prob']] = 1
             predictions = sess.run(model.inference, feed_dict=feed_dict)
